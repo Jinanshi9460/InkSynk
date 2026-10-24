@@ -1,0 +1,27 @@
+{
+  "name": "skribbl-clone-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "smoke": "node smoke-test.mjs",
+    "smoke:phase0": "node phase0-test.mjs",
+    "smoke:draw": "node smoke-draw.mjs",
+    "smoke:game": "node smoke-game.mjs",
+    "smoke:phase5": "node smoke-phase5.mjs",
+    "smoke:phase6": "node smoke-phase6.mjs",
+    "test": "npm run smoke && npm run smoke:phase0 && npm run smoke:draw && npm run smoke:game && npm run smoke:phase5 && npm run smoke:phase6"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.7.5"
+  }
+}
