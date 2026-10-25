@@ -1,11 +1,95 @@
 # InkSynk — Real-Time Multiplayer Drawing & Guessing Game
 
-> **Live Deployment:** `https://<YOUR-RENDER-FRONTEND-URL-HERE>` *(Replace with your deployed frontend URL after deployment)*  
-> **Backend Service:** `https://<YOUR-RENDER-BACKEND-URL-HERE>` *(Replace with your deployed backend URL after deployment)*
+> **Backend Service:** `https://inksynk-v9lk.onrender.com`  
+> **Live Deployment:** `https://<YOUR-RENDER-FRONTEND-URL-HERE>` *(Replace with your deployed frontend URL after deployment)*
 
 ---
 
 InkSynk is a modern, high-energy real-time multiplayer drawing and guessing game inspired by skribbl.io. Built with React 18, Vite, Node.js, Express, and Socket.IO, InkSynk features an authoritative server engine, sub-30ms canvas synchronisation, procedural sound effects, and a responsive party-game UI.
+
+---
+
+## 📊 Visual System Diagrams & Flowcharts
+
+### 1. Game Lifecycle & State Machine
+
+```mermaid
+flowchart TD
+    A["🏠 LOBBY<br/>Players join via 5-char code<br/>Host configures rounds & rules"] -->|Host clicks Start Game with 2+ players| B["🎨 WORD SELECTION<br/>Server offers 3 secret words<br/>15s countdown timer"]
+    
+    B -->|Drawer chooses word or timeout auto-picks| C["✏️ DRAWING & GUESSING<br/>Drawer sketches on canvas<br/>Guessers submit guesses in chat<br/>Progressive hints unlock over time"]
+    
+    C -->|Timer hits 0 OR all players guess| D["⏱️ ROUND END<br/>Secret word revealed to all<br/>Turn points awarded & displayed<br/>5s pause"]
+    
+    D -->|More turns or rounds remain| B
+    D -->|All rounds completed| E["🏆 GAME OVER<br/>3D Winner Podium celebration<br/>Confetti & victory fanfare<br/>Full match standings"]
+    
+    E -->|Host clicks Play Again| A
+```
+
+---
+
+### 2. Real-Time Network & Data Architecture
+
+```mermaid
+flowchart LR
+    subgraph ClientA["Active Drawer (Client A)"]
+        CA1["Pointer Events"] --> CA2["Normalize Coords (0.0 - 1.0)"]
+        CA2 --> CA3["30ms Point Buffer"]
+        CA3 --> CA4["Optimistic Local Render"]
+    end
+
+    subgraph Server["InkSynk Authoritative Server (Node.js)"]
+        S1["Rate Limiter (150/s)"]
+        S2["Validate isDrawer & Phase"]
+        S3["In-Memory Stroke History"]
+        S4["Authoritative Timers"]
+        S5["Exact Guess Matcher"]
+        S6["Scoring Engine (+100, +80...)"]
+    end
+
+    subgraph ClientB["Guesser (Client B)"]
+        CB1["Receive draw_data"]
+        CB2["Denormalize to Screen DPR"]
+        CB3["Render Strokes on Canvas"]
+        CB4["Type Guess in Chat"]
+    end
+
+    CA3 -->|"draw_move (socket.emit)"| S1
+    S1 --> S2 --> S3
+    S3 -->|"draw_data (broadcast excluding drawer)"| CB1
+    
+    CB4 -->|"guess (socket.emit)"| S5
+    S5 --> S6
+    S6 -->|"guess_result + chat_message"| ClientA
+    S6 -->|"guess_result + chat_message"| ClientB
+```
+
+---
+
+### 3. Guessing & Scoring Pipeline
+
+```mermaid
+flowchart TD
+    G1["Player submits guess text"] --> G2{"Is game in DRAWING phase?"}
+    G2 -- No --> G_REJ["Reject with WRONG_PHASE"]
+    G2 -- Yes --> G3{"Is player the drawer?"}
+    G3 -- Yes --> G_DRAWER["Reject: Drawer cannot guess"]
+    G3 -- No --> G4{"Has player already guessed this turn?"}
+    G4 -- Yes --> G_ALREADY["Reject with ALREADY_GUESSED"]
+    G4 -- No --> G5["Sanitize whitespace & lowercase"]
+    
+    G5 --> G6{"Exact match with secret word?"}
+    
+    G6 -- No --> G_WRONG["Broadcast wrong guess to room chat<br/>(Sender gets private feedback)"]
+    G6 -- Yes --> G7["Award placement points to guesser<br/>1st: 100, 2nd: 80, 3rd: 60, 4th: 40, 5th+: 20"]
+    
+    G7 --> G8["Award drawer bonus (+50 once per turn)"]
+    G8 --> G9["Broadcast guess_result to whole room<br/>Word is NOT revealed"]
+    G9 --> G10{"Have all eligible guessers guessed?"}
+    G10 -- Yes --> G11["Trigger early round_end ('all_guessed')"]
+    G10 -- No --> G12["Continue turn until timer expires"]
+```
 
 ---
 
@@ -104,39 +188,6 @@ skribbl-clone/
 
 ---
 
-## ⚙️ Architecture & Data Flow
-
-```text
-       ┌────────────────────────┐                   ┌────────────────────────┐
-       │     React Client A     │                   │     React Client B     │
-       │    (Active Drawer)     │                   │    (Active Guesser)    │
-       └───────────┬────────────┘                   └───────────▲────────────┘
-                   │                                            │
-   draw_start / draw_move / chat                   draw_data / chat_message / game_state
-                   │                                            │
-                   ▼                                            │
-       ┌────────────────────────────────────────────────────────┴────────────┐
-       │                    InkSynk Socket.IO Server                         │
-       │                         (Node.js + Express)                         │
-       │                                                                     │
-       │  • Authoritative State Machine (`game.js`)                          │
-       │  • Room Store & Garbage Collection (`rooms.js`)                     │
-       │  • Authoritative Round Timers (`game.js`)                           │
-       │  • Exact Guess Equality & Scoring Engine (`scoring.js`)             │
-       │  • Stroke Buffer & Normalized Broadcast (`drawing.js`)              │
-       │  • Sliding-Window Rate Limiting (`rateLimit.js`)                    │
-       └─────────────────────────────────────────────────────────────────────┘
-```
-
-1. **Rooms:** Identified by unique 5-character unambiguous codes (`A-Z, 2-9`, excluding `0/O/1/I/L`). Rooms are kept in server memory (`Map<code, Room>`) and automatically garbage-collected when empty.
-2. **Canvas Strokes:** Captured locally on pointer events, normalized to $0.0-1.0$, buffered for 30ms, and broadcast via `socket.to(code).emit('draw_data')`.
-3. **Word Privacy:** The secret word is delivered **only** to the active drawer. Guesser states receive masked patterns (`_ _ a _ _`). The word is only broadcast to guessers in the `round_end` payload.
-4. **Guesses:** Submitted to the server via the `guess` event. The server sanitizes whitespace, compares exact equality against the secret word, awards points, and notifies room members.
-5. **Timers:** Run as native Node.js timers (`setTimeout`). The server emits `round_end` upon timer expiry. Clients synchronize countdown displays using `serverNow - clientNow`.
-6. **Round Rotation:** The server rotates drawers in join order. Every player draws once per round.
-
----
-
 ## 🎯 Scoring Rules
 
 Scores are computed exclusively on the server in `server/scoring.js`:
@@ -194,11 +245,11 @@ Scores are computed exclusively on the server in `server/scoring.js`:
 
 | Variable | Location | Default (Local) | Production Example | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `PORT` | Server | `3000` | Provided by host (e.g. `10000`) | Port the backend server binds to |
+| `PORT` | Server | `3000` | Provided by Render (`10000`) | Port the backend server binds to |
 | `HOST` | Server | `0.0.0.0` | `0.0.0.0` | Network host interface to bind to |
-| `CLIENT_URL` | Server | `http://localhost:5173` | `https://your-inksynk.onrender.com` | Allowed frontend origins for CORS (comma-separated, no trailing slash) |
+| `CLIENT_URL` | Server | `http://localhost:5173` | `https://your-inksynk.onrender.com` | Allowed frontend origins for CORS |
 | `MAX_ROOMS` | Server | `500` | `500` | Maximum simultaneous active rooms in memory |
-| `VITE_SERVER_URL` | Client | `http://localhost:3000` | `https://your-inksynk-api.onrender.com` | Public backend URL injected at **build time** |
+| `VITE_SERVER_URL` | Client | `http://localhost:3000` | `https://inksynk-v9lk.onrender.com` | Public backend URL injected at **build time** |
 
 ---
 
@@ -210,7 +261,8 @@ Scores are computed exclusively on the server in `server/scoring.js`:
 
 ### Step 1: Clone or Open Workspace
 ```bash
-cd skribbl-clone
+git clone https://github.com/Jinanshi9460/InkSynk.git
+cd InkSynk
 ```
 
 ### Step 2: Set Up Backend
@@ -218,7 +270,7 @@ cd skribbl-clone
 cd server
 copy .env.example .env    # On macOS/Linux: cp .env.example .env
 npm install
-npm run dev               # Runs with nodemon/watch mode on http://localhost:3000
+npm run dev               # Runs with watch mode on http://localhost:3000
 ```
 
 ### Step 3: Set Up Frontend (New Terminal)
@@ -229,7 +281,7 @@ npm install
 npm run dev                     # Starts Vite dev server on http://localhost:5173
 ```
 
-Open `http://localhost:5173` in two browser tabs (one normal, one Incognito) to play locally.
+Open `http://localhost:5173` in two browser tabs to play locally.
 
 ---
 
@@ -253,7 +305,7 @@ npm run smoke:draw     # Runs drawing permission and batch tests (57 checks)
 ### Step 1: Deploy Backend as a Render Web Service
 1. Sign in to [Render Dashboard](https://dashboard.render.com).
 2. Click **New +** $\rightarrow$ **Web Service**.
-3. Connect your GitHub repository (`InkSynk`).
+3. Connect your GitHub repository (`Jinanshi9460/InkSynk`).
 4. Configure the Web Service:
    * **Name:** `inksynk-api`
    * **Root Directory:** `server`
@@ -265,23 +317,21 @@ npm run smoke:draw     # Runs drawing permission and batch tests (57 checks)
    * `NODE_ENV` = `production`
    * `CLIENT_URL` = `https://<YOUR-FRONTEND-URL>` *(Update after creating frontend in Step 2)*
 6. Click **Deploy Web Service**.
-7. Copy your backend URL: e.g. `https://inksynk-api.onrender.com`.
+7. Your backend URL is: `https://inksynk-v9lk.onrender.com`.
 
 ### Step 2: Deploy Frontend as a Render Static Site
 1. In Render Dashboard, click **New +** $\rightarrow$ **Static Site**.
-2. Connect your GitHub repository (`InkSynk`).
+2. Connect the same repository: `Jinanshi9460/InkSynk`.
 3. Configure the Static Site:
    * **Name:** `inksynk`
    * **Root Directory:** `client`
    * **Build Command:** `npm install && npm run build`
    * **Publish Directory:** `dist`
 4. Under **Environment Variables**, add:
-   * `VITE_SERVER_URL` = `https://inksynk-api.onrender.com` *(Your backend URL from Step 1, without trailing slash)*
+   * `VITE_SERVER_URL` = `https://inksynk-v9lk.onrender.com`
 5. Click **Create Static Site**.
-6. Copy your frontend URL: e.g. `https://inksynk.onrender.com`.
-7. **Important:** Go back to the backend Web Service settings and update `CLIENT_URL` to match this frontend URL (`https://inksynk.onrender.com`).
-
-*(Alternative: You can also deploy the `client` directory directly to Vercel. `client/vercel.json` is already configured for single-page routing).*
+6. Copy your frontend URL (e.g. `https://inksynk.onrender.com`).
+7. **Final step:** Go back to the backend Web Service settings $\rightarrow$ **Environment** $\rightarrow$ update `CLIENT_URL` to match your frontend URL (`https://inksynk.onrender.com`).
 
 ---
 
