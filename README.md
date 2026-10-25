@@ -1,7 +1,7 @@
 # InkSynk — Real-Time Multiplayer Drawing & Guessing Game
 
-> **Backend Service:** `https://inksynk-v9lk.onrender.com`  
-> **Live Deployment:** `https://<YOUR-RENDER-FRONTEND-URL-HERE>` *(Replace with your deployed frontend URL after deployment)*
+> **Live Web App:** [https://inksynk-frontend.onrender.com](https://inksynk-frontend.onrender.com)  
+> **Backend Service:** [https://inksynk-v9lk.onrender.com](https://inksynk-v9lk.onrender.com)
 
 ---
 
@@ -247,7 +247,7 @@ Scores are computed exclusively on the server in `server/scoring.js`:
 | :--- | :--- | :--- | :--- | :--- |
 | `PORT` | Server | `3000` | Provided by Render (`10000`) | Port the backend server binds to |
 | `HOST` | Server | `0.0.0.0` | `0.0.0.0` | Network host interface to bind to |
-| `CLIENT_URL` | Server | `http://localhost:5173` | `https://your-inksynk.onrender.com` | Allowed frontend origins for CORS |
+| `CLIENT_URL` | Server | `http://localhost:5173` | `https://inksynk-frontend.onrender.com` | Allowed frontend origins for CORS |
 | `MAX_ROOMS` | Server | `500` | `500` | Maximum simultaneous active rooms in memory |
 | `VITE_SERVER_URL` | Client | `http://localhost:3000` | `https://inksynk-v9lk.onrender.com` | Public backend URL injected at **build time** |
 
@@ -315,7 +315,7 @@ npm run smoke:draw     # Runs drawing permission and batch tests (57 checks)
    * **Instance Type:** `Free`
 5. Under **Environment Variables**, add:
    * `NODE_ENV` = `production`
-   * `CLIENT_URL` = `https://<YOUR-FRONTEND-URL>` *(Update after creating frontend in Step 2)*
+   * `CLIENT_URL` = `https://inksynk-frontend.onrender.com`
 6. Click **Deploy Web Service**.
 7. Your backend URL is: `https://inksynk-v9lk.onrender.com`.
 
@@ -323,15 +323,15 @@ npm run smoke:draw     # Runs drawing permission and batch tests (57 checks)
 1. In Render Dashboard, click **New +** $\rightarrow$ **Static Site**.
 2. Connect the same repository: `Jinanshi9460/InkSynk`.
 3. Configure the Static Site:
-   * **Name:** `inksynk`
+   * **Name:** `inksynk-frontend`
    * **Root Directory:** `client`
    * **Build Command:** `npm install && npm run build`
    * **Publish Directory:** `dist`
 4. Under **Environment Variables**, add:
    * `VITE_SERVER_URL` = `https://inksynk-v9lk.onrender.com`
 5. Click **Create Static Site**.
-6. Copy your frontend URL (e.g. `https://inksynk.onrender.com`).
-7. **Final step:** Go back to the backend Web Service settings $\rightarrow$ **Environment** $\rightarrow$ update `CLIENT_URL` to match your frontend URL (`https://inksynk.onrender.com`).
+6. Your live frontend URL is: `https://inksynk-frontend.onrender.com`.
+7. **Important:** On your backend Web Service (`inksynk-api`), ensure **Environment** $\rightarrow$ `CLIENT_URL` is set to `https://inksynk-frontend.onrender.com`.
 
 ---
 
