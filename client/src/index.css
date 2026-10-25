@@ -2630,17 +2630,32 @@ input:disabled, select:disabled {
   }
 
   .join-row {
+    display: flex;
     width: 100%;
     min-width: 0;
     gap: 8px;
+    align-items: center;
   }
 
-  .code-input {
-    flex: 1;
+  .join-row .code-input {
+    flex: 1 1 auto;
     min-width: 0;
-    font-size: 1rem;
+    width: 0;
+    font-size: 1.05rem;
     letter-spacing: 0.12em;
-    padding: 10px;
+    padding: 12px 14px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .join-row .btn,
+  .join-row .btn-large {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: 90px;
+    padding: 12px 20px;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   /* Warm-up Pad */
@@ -2747,6 +2762,19 @@ input:disabled, select:disabled {
     width: 30px;
     height: 30px;
     font-size: 1rem;
+  }
+
+  .join-row .code-input {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    padding: 10px 8px;
+  }
+
+  .join-row .btn,
+  .join-row .btn-large {
+    min-width: 78px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
 
