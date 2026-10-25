@@ -13,6 +13,7 @@ import { createGameEngine, publicRoomState } from './game.js';
 import { createLimiter } from './rateLimit.js';
 
 const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 const ALLOWED_ORIGINS = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
   .map((o) => o.trim().replace(/\/$/, ''))
@@ -293,7 +294,7 @@ function shutdown(signal) {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-httpServer.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+httpServer.listen(PORT, HOST, () => {
+  console.log(`Server listening on ${HOST}:${PORT}`);
   console.log(`Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
 });
