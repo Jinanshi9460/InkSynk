@@ -2397,47 +2397,315 @@ input:disabled, select:disabled {
 }
 
 @media (max-width: 640px) {
-  .main {
-    padding: 12px 10px 32px;
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .header {
-    padding: 10px 14px;
+    width: 100%;
+    max-width: 100vw;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    gap: 8px;
   }
 
   .brand-name {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
+  }
+
+  .brand-tagline {
+    display: none;
   }
 
   .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sound-toggle-btn {
     width: 34px;
     height: 34px;
+    font-size: 1rem;
+  }
+
+  .room-pill {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  .main {
+    width: 100%;
+    max-width: 100vw;
+    padding: 10px 10px 32px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Home Layout on Mobile */
+  .home-layout {
+    width: 100%;
+    max-width: 100%;
+    gap: 18px;
+    padding-top: 4px;
+    overflow-x: hidden;
+  }
+
+  .hero-banner {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 4px;
+    gap: 10px;
+  }
+
+  .hero-badge {
+    font-size: 0.72rem;
+    padding: 4px 10px;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    line-height: 1.18;
   }
 
+  .hero-subtitle {
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  .features-grid {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .feature-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .feature-icon {
+    font-size: 1.3rem;
+  }
+
+  .feature-card strong {
+    font-size: 0.88rem;
+  }
+
+  .feature-card p {
+    font-size: 0.76rem;
+  }
+
+  /* Main Action Hub */
+  .home-hub-container {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 0;
+  }
+
+  .home-card,
+  .warmup-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 16px 14px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Avatar & Profile Row */
+  .profile-section {
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .avatar-picker-row {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avatar-preview-badge {
+    width: 42px;
+    height: 42px;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .avatar-carousel {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  .avatar-option-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .name-input {
+    font-size: 16px;
+    padding-left: 40px;
+  }
+
+  .input-icon-left {
+    left: 12px;
+    font-size: 1.1rem;
+  }
+
+  /* Mode Switcher Tabs */
+  .tab-pill-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tab-pill {
+    padding: 8px 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  /* Presets */
+  .presets-row {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .preset-chips {
+    width: 100%;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .preset-chip {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+
+  /* Settings drawer on mobile */
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .settings-drawer-inner {
+    padding: 10px;
+  }
+
+  .btn-large {
+    padding: 12px 18px;
+    font-size: 0.98rem;
+    width: 100%;
+  }
+
+  /* Join Form */
+  .join-form {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .join-row {
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .code-input {
+    flex: 1;
+    min-width: 0;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    padding: 10px;
+  }
+
+  /* Warm-up Pad */
+  .warmup-canvas-wrapper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .warmup-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 150px !important;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .warmup-swatches {
+    gap: 6px;
+  }
+
+  .warmup-swatch {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Lobby & Game components on mobile */
   .lobby-hero-card {
     padding: 16px;
+    gap: 14px;
+  }
+
+  .room-code-badge {
+    padding: 6px 14px;
+    gap: 10px;
   }
 
   .room-code-text {
-    font-size: 1.7rem;
+    font-size: 1.6rem;
+    letter-spacing: 0.14em;
+  }
+
+  .lobby-hero-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .lobby-hero-actions .btn {
+    width: 100%;
   }
 
   .swatches-grid {
     grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
   }
 
   .color-swatch-btn {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
   }
 
   .size-picker-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
 
   .btn {
@@ -2446,6 +2714,39 @@ input:disabled, select:disabled {
 
   input, select {
     font-size: 16px; /* Stop iOS Safari zoom on focus */
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .home-card,
+  .warmup-card {
+    padding: 12px 10px;
+  }
+
+  .tab-pill {
+    padding: 7px 4px;
+    font-size: 0.78rem;
+  }
+
+  .preset-chip {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+  }
+
+  .avatar-preview-badge {
+    width: 38px;
+    height: 38px;
+    font-size: 1.25rem;
+  }
+
+  .avatar-option-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
   }
 }
 
